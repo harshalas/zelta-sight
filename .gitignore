@@ -1,4 +1,4 @@
-zelta-sight-backend/venv/
+backend/venv/
 *.pyc
 __pycache__/
 .DS_Store
