@@ -342,7 +342,7 @@ export default function App() {
 
   // PRIMARY ROUTE: Run the core tracking app layouts if authenticated
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 60 }}>
+    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 60 }} keyboardShouldPersistTaps="handled">
       <View style={styles.headerBlock}>
         <Text style={styles.headerTitle}>ZELTA SIGHT</Text>
         <Text style={styles.headerSubtitle}>STANDALONE INSTANT RUNTIME INTERFACE</Text>
@@ -367,6 +367,7 @@ export default function App() {
           value={ticker}
           onChangeText={setTicker}
           autoCapitalize="characters"
+          blurOnSubmit={true}
         />
         <TouchableOpacity style={styles.button} onPress={runStandaloneAnalysis}>
           <Text style={styles.buttonText}>RUN REPORT</Text>
