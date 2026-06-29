@@ -1,0 +1,22 @@
+Step 1: Save Your Code Changes
+Step 2: Clear Out Old Native Artifacts (Crucial if modifying native logic)
+	PowerShell
+	Remove-Item -Recurse -Force android
+Step 3: Run the Prebuild Checklist
+	Bash
+	npx expo prebuild --platform android --clean
+Step 4: Fire Off the Expo Cloud Build (EAS)
+	Bash
+	eas build --platform android --profile development --clear-cache
+Step 5: Download and Load the App onto Your Device
+	Once the terminal shows that the build has completed successfully:
+
+	Grab the APK Link: Look at your terminal output. Expo will provide a QR code and a direct web link (e.g., 	https://expo.dev/artifacts/...).
+
+	Download the File: Click the link on your computer to download the .apk file, or scan the QR code with your phone to download it 	directly onto your device.
+
+	Uninstall Previous Version: If you already have an older version of your app running on your phone, uninstall it first to prevent an 	Android "App not installed" package conflict error.
+
+	Install and Run: Tap the newly downloaded .apk file on your phone. If Google Play Protect asks for permission, click "Install 	Anyway".
+
+	Open the app, enter your Gemini key into your portal lock screen, and your fresh code updates will be live and running instantly!

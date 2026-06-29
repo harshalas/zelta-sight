@@ -212,41 +212,54 @@ export default function App() {
       let aiRating = "Neutral";
 
       try {
-        const response = await ai.models.generateContent({
-          model: 'gemini-2.5-flash-lite',
-          contents: prompt,
-          config: {
-            systemInstruction: systemInstruction,
-            responseMimeType: 'application/json',
-            responseSchema: {
-              type: 'OBJECT',
-              properties: {
-                technical_rating: { type: 'STRING', enum: ['Strong Buy', 'Buy', 'Neutral', 'Sell', 'Strong Sell'] },
-                briefing_items: {
-                  type: 'ARRAY',
-                  items: {
-                    type: 'OBJECT',
-                    properties: {
-                      label: { type: 'STRING' },
-                      description: { type: 'STRING' },
-                      status: { type: 'STRING', enum: ['GOOD', 'RISK', 'NEUTRAL'] }
-                    },
-                    required: ['label', 'description', 'status']
+        // Direct REST endpoint that bypasses the Node/Web-dependent SDK footprint
+        const geminiRestUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${activeKey}`;
+        
+        const aiResponse = await fetch(geminiRestUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            systemInstruction: { parts: [{ text: systemInstruction }] },
+            generationConfig: {
+              responseMimeType: 'application/json',
+              responseSchema: {
+                type: 'OBJECT',
+                properties: {
+                  technical_rating: { type: 'STRING', enum: ['Strong Buy', 'Buy', 'Neutral', 'Sell', 'Strong Sell'] },
+                  briefing_items: {
+                    type: 'ARRAY',
+                    items: {
+                      type: 'OBJECT',
+                      properties: {
+                        label: { type: 'STRING' },
+                        description: { type: 'STRING' },
+                        status: { type: 'STRING', enum: ['GOOD', 'RISK', 'NEUTRAL'] }
+                      },
+                      required: ['label', 'description', 'status']
+                    }
                   }
-                }
-              },
-              required: ['technical_rating', 'briefing_items']
+                },
+                required: ['technical_rating', 'briefing_items']
+              }
             }
-          }
+          })
         });
 
-        const resultData = JSON.parse(response.text);
+        const aiJson = await aiResponse.json();
+        const rawText = aiJson.candidates?.[0]?.content?.parts?.[0]?.text;
+        
+        const resultData = JSON.parse(rawText);
         aiBriefing = resultData.briefing_items || [];
         aiRating = resultData.technical_rating || "Neutral";
+
       } catch (aiErr) {
-        aiRating = "Buy";
+        console.log("Gemini Native Endpoint Parsing Error: ", aiErr);
+        aiRating = "Neutral";
         aiBriefing = [
-          { label: "Suitability Verdict", description: "High-momentum scalp setup ideal for an active intraday day trade.", status: "GOOD" }
+          { label: "Suitability Verdict", description: "Parsing baseline failure. Check API key structural metrics or quota limitations.", status: "RISK" },
+          { label: "Tape Speed Assessment", description: "Data parsing interrupted.", status: "NEUTRAL" },
+          { label: "Structural Extension", description: "Data parsing interrupted.", status: "NEUTRAL" }
         ];
       }
 
